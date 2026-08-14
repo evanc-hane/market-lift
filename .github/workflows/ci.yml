@@ -32,7 +32,7 @@ jobs:
       - run: pytest --cov=marketlift --cov-report=term-missing --cov-report=xml --cov-fail-under=80
       - name: Smoke-test complete pipeline
         run: marketlift-run --scale test
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: matrix.python-version == '3.12'
         with:
           name: marketlift-decision-reports
