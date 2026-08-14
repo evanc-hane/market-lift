@@ -9,7 +9,7 @@ marketplace should launch a **$2 peak-hour courier incentive**. It combines a re
 two-sided marketplace simulator, DuckDB metric layer, geo-switchback experiment, CUPED,
 cluster-robust inference, heterogeneous treatment effects, and an executive decision memo.
 
-> Semi-synthetic portfolio benchmark. Results do not describe a real company or market.
+> Semi-synthetic benchmark. Results do not describe a real company or market.
 
 ## Reproducible demo decision
 
@@ -131,18 +131,6 @@ contribution margin = completed-order commission + delivery fee
 Guardrails include cancellation rate, late-delivery rate, P90 delivery time, and courier
 earnings per active hour. See [metric definitions](docs/METRICS.md) and the
 [experiment design](docs/EXPERIMENT_DESIGN.md).
-
-## Resume-ready summary
-
-- Designed a geo-switchback marketplace experiment with point-in-time SQL exposure joins,
-  SRM/balance diagnostics, MDE analysis, and intent-to-treat measurement.
-- Implemented CUPED and cluster-robust fixed-effects regression, then benchmarked estimator
-  bias against hidden semi-synthetic causal ground truth.
-- Built tested DuckDB metric marts and an executive dashboard translating treatment effects
-  into contribution margin, operational guardrails, and city-level launch decisions.
-
-Numerical resume claims should be copied from the committed generated reports after the
-final demo run, not invented in advance.
 
 ## Author
 
