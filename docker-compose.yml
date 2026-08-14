@@ -1,0 +1,14 @@
+services:
+  marketlift:
+    build: .
+    ports:
+      - "8501:8501"
+    volumes:
+      - marketlift-data:/app/data
+      - marketlift-reports:/app/reports
+    restart: unless-stopped
+
+volumes:
+  marketlift-data:
+  marketlift-reports:
+

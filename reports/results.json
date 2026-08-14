@@ -1,0 +1,204 @@
+{
+  "experiment": {
+    "experiment_id": "courier_bonus_peak_v1",
+    "business_question": "Should a $2 peak-hour courier bonus be launched without harming marketplace unit economics?",
+    "randomization_unit": "zone_cluster x 2-hour block",
+    "analysis_units": 1792
+  },
+  "health": {
+    "sample_ratio_mismatch": {
+      "control_units": 896,
+      "treatment_units": 896,
+      "chi_square": 0.0,
+      "p_value": 1.0
+    },
+    "pre_period_balance_smd": 0.060114,
+    "rain_balance_smd": -0.054845,
+    "aa_false_positive_rate": 0.06
+  },
+  "power": {
+    "minimum_detectable_effect": 1.639355,
+    "alpha": 0.05,
+    "power": 0.8
+  },
+  "primary_metric": {
+    "name": "contribution_margin_per_zone_cluster_block",
+    "naive": {
+      "estimate": -4.496942,
+      "standard_error": 0.575585,
+      "ci_lower": -5.625088,
+      "ci_upper": -3.368796,
+      "p_value": 0.0
+    },
+    "cluster_robust": {
+      "estimate": -4.506647,
+      "standard_error": 0.506071,
+      "ci_lower": -5.498546,
+      "ci_upper": -3.514749,
+      "p_value": 0.0
+    },
+    "cuped_cluster_robust": {
+      "estimate": -4.508914,
+      "standard_error": 0.506345,
+      "ci_lower": -5.50135,
+      "ci_upper": -3.516477,
+      "p_value": 0.0
+    },
+    "cuped_theta": 0.009671,
+    "cuped_variance_reduction": 9e-06,
+    "known_ground_truth": -3.2003,
+    "cuped_absolute_error": -1.308614
+  },
+  "secondary_metrics": {
+    "completion_rate": {
+      "estimate": 0.017001,
+      "standard_error": 0.010778,
+      "ci_lower": -0.004124,
+      "ci_upper": 0.038126,
+      "p_value": 0.114718
+    },
+    "cancellation_rate": {
+      "estimate": -0.017001,
+      "standard_error": 0.010778,
+      "ci_lower": -0.038126,
+      "ci_upper": 0.004124,
+      "p_value": 0.114718
+    },
+    "p90_delivery_minutes": {
+      "estimate": 2.274972,
+      "standard_error": 1.269348,
+      "ci_lower": -0.21295,
+      "ci_upper": 4.762894,
+      "p_value": 0.073095
+    },
+    "avg_online_couriers": {
+      "estimate": 0.293545,
+      "standard_error": 0.04726,
+      "ci_lower": 0.200915,
+      "ci_upper": 0.386175,
+      "p_value": 0.0
+    },
+    "courier_earnings_per_hour": {
+      "estimate": 1.55816,
+      "standard_error": 0.192774,
+      "ci_lower": 1.180324,
+      "ci_upper": 1.935997,
+      "p_value": 0.0
+    }
+  },
+  "city_effects": [
+    {
+      "city_id": "city_00",
+      "city_name": "Toronto",
+      "market_maturity": "mature",
+      "estimate": -5.967589,
+      "standard_error": 2.147583,
+      "ci_lower": -10.176851,
+      "ci_upper": -1.758327,
+      "p_value": 0.005457,
+      "adjusted_p_value": 0.01252,
+      "true_effect": -5.666545,
+      "absolute_error": -0.301044
+    },
+    {
+      "city_id": "city_01",
+      "city_name": "Vancouver",
+      "market_maturity": "mature",
+      "estimate": -6.043482,
+      "standard_error": 1.933532,
+      "ci_lower": -9.833205,
+      "ci_upper": -2.253759,
+      "p_value": 0.001774,
+      "adjusted_p_value": 0.007096,
+      "true_effect": -5.240467,
+      "absolute_error": -0.803015
+    },
+    {
+      "city_id": "city_02",
+      "city_name": "Montreal",
+      "market_maturity": "growth",
+      "estimate": -4.331518,
+      "standard_error": 1.584397,
+      "ci_lower": -7.436936,
+      "ci_upper": -1.2261,
+      "p_value": 0.00626,
+      "adjusted_p_value": 0.01252,
+      "true_effect": -2.795216,
+      "absolute_error": -1.536302
+    },
+    {
+      "city_id": "city_03",
+      "city_name": "Calgary",
+      "market_maturity": "growth",
+      "estimate": -2.178571,
+      "standard_error": 1.416143,
+      "ci_lower": -4.954213,
+      "ci_upper": 0.59707,
+      "p_value": 0.123955,
+      "adjusted_p_value": 0.123955,
+      "true_effect": -2.327511,
+      "absolute_error": 0.14894
+    },
+    {
+      "city_id": "city_04",
+      "city_name": "Ottawa",
+      "market_maturity": "growth",
+      "estimate": -3.380446,
+      "standard_error": 1.369978,
+      "ci_lower": -6.065604,
+      "ci_upper": -0.695289,
+      "p_value": 0.013605,
+      "adjusted_p_value": 0.020735,
+      "true_effect": -2.564506,
+      "absolute_error": -0.81594
+    },
+    {
+      "city_id": "city_05",
+      "city_name": "Edmonton",
+      "market_maturity": "new",
+      "estimate": -3.420089,
+      "standard_error": 1.413683,
+      "ci_lower": -6.190908,
+      "ci_upper": -0.649271,
+      "p_value": 0.015551,
+      "adjusted_p_value": 0.020735,
+      "true_effect": -1.893132,
+      "absolute_error": -1.526957
+    },
+    {
+      "city_id": "city_06",
+      "city_name": "Winnipeg",
+      "market_maturity": "new",
+      "estimate": -3.496786,
+      "standard_error": 1.578732,
+      "ci_lower": -6.5911,
+      "ci_upper": -0.402471,
+      "p_value": 0.026765,
+      "adjusted_p_value": 0.030589,
+      "true_effect": -2.194742,
+      "absolute_error": -1.302044
+    },
+    {
+      "city_id": "city_07",
+      "city_name": "Halifax",
+      "market_maturity": "new",
+      "estimate": -7.157054,
+      "standard_error": 1.408964,
+      "ci_lower": -9.918624,
+      "ci_upper": -4.395483,
+      "p_value": 0.0,
+      "adjusted_p_value": 0.0,
+      "true_effect": -2.920281,
+      "absolute_error": -4.236773
+    }
+  ],
+  "decision": {
+    "recommendation": "STOP",
+    "launch_cities": [],
+    "rules": {
+      "primary_ci_lower_above_zero": false,
+      "cancellation_increase_ci_upper_below_0_5pp": true,
+      "city_fdr_threshold": 0.1
+    }
+  }
+}
