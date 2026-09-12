@@ -6,6 +6,8 @@
     "analysis_units": 1792
   },
   "health": {
+    "experiment_valid": true,
+    "violations": [],
     "sample_ratio_mismatch": {
       "control_units": 896,
       "treatment_units": 896,
@@ -44,10 +46,21 @@
       "ci_upper": -3.516477,
       "p_value": 0.0
     },
+    "randomization_inference": {
+      "observed_difference": -4.499183,
+      "p_value": 0.000999,
+      "repetitions": 1000,
+      "strata": [
+        "city_id",
+        "experiment_date",
+        "block_hour"
+      ]
+    },
     "cuped_theta": 0.009671,
     "cuped_variance_reduction": 9e-06,
     "known_ground_truth": -3.2003,
-    "cuped_absolute_error": -1.308614
+    "cuped_estimation_bias": -1.308614,
+    "cuped_absolute_error": 1.308614
   },
   "secondary_metrics": {
     "completion_rate": {
@@ -65,11 +78,11 @@
       "p_value": 0.114718
     },
     "p90_delivery_minutes": {
-      "estimate": 2.274972,
-      "standard_error": 1.269348,
-      "ci_lower": -0.21295,
-      "ci_upper": 4.762894,
-      "p_value": 0.073095
+      "estimate": -2.173348,
+      "standard_error": 0.885401,
+      "ci_lower": -3.908734,
+      "ci_upper": -0.437962,
+      "p_value": 0.014102
     },
     "avg_online_couriers": {
       "estimate": 0.293545,
@@ -98,7 +111,10 @@
       "p_value": 0.005457,
       "adjusted_p_value": 0.01252,
       "true_effect": -5.666545,
-      "absolute_error": -0.301044
+      "estimation_bias": -0.301044,
+      "absolute_error": 0.301044,
+      "cancellation_ci_upper": 0.052838,
+      "passes_cancellation_guardrail": false
     },
     {
       "city_id": "city_01",
@@ -111,7 +127,10 @@
       "p_value": 0.001774,
       "adjusted_p_value": 0.007096,
       "true_effect": -5.240467,
-      "absolute_error": -0.803015
+      "estimation_bias": -0.803015,
+      "absolute_error": 0.803015,
+      "cancellation_ci_upper": 0.009698,
+      "passes_cancellation_guardrail": false
     },
     {
       "city_id": "city_02",
@@ -124,7 +143,10 @@
       "p_value": 0.00626,
       "adjusted_p_value": 0.01252,
       "true_effect": -2.795216,
-      "absolute_error": -1.536302
+      "estimation_bias": -1.536302,
+      "absolute_error": 1.536302,
+      "cancellation_ci_upper": 0.077215,
+      "passes_cancellation_guardrail": false
     },
     {
       "city_id": "city_03",
@@ -137,7 +159,10 @@
       "p_value": 0.123955,
       "adjusted_p_value": 0.123955,
       "true_effect": -2.327511,
-      "absolute_error": 0.14894
+      "estimation_bias": 0.14894,
+      "absolute_error": 0.14894,
+      "cancellation_ci_upper": 0.06021,
+      "passes_cancellation_guardrail": false
     },
     {
       "city_id": "city_04",
@@ -150,7 +175,10 @@
       "p_value": 0.013605,
       "adjusted_p_value": 0.020735,
       "true_effect": -2.564506,
-      "absolute_error": -0.81594
+      "estimation_bias": -0.81594,
+      "absolute_error": 0.81594,
+      "cancellation_ci_upper": 0.051926,
+      "passes_cancellation_guardrail": false
     },
     {
       "city_id": "city_05",
@@ -163,7 +191,10 @@
       "p_value": 0.015551,
       "adjusted_p_value": 0.020735,
       "true_effect": -1.893132,
-      "absolute_error": -1.526957
+      "estimation_bias": -1.526957,
+      "absolute_error": 1.526957,
+      "cancellation_ci_upper": 0.055372,
+      "passes_cancellation_guardrail": false
     },
     {
       "city_id": "city_06",
@@ -176,7 +207,10 @@
       "p_value": 0.026765,
       "adjusted_p_value": 0.030589,
       "true_effect": -2.194742,
-      "absolute_error": -1.302044
+      "estimation_bias": -1.302044,
+      "absolute_error": 1.302044,
+      "cancellation_ci_upper": 0.053888,
+      "passes_cancellation_guardrail": false
     },
     {
       "city_id": "city_07",
@@ -189,7 +223,10 @@
       "p_value": 0.0,
       "adjusted_p_value": 0.0,
       "true_effect": -2.920281,
-      "absolute_error": -4.236773
+      "estimation_bias": -4.236773,
+      "absolute_error": 4.236773,
+      "cancellation_ci_upper": 0.060501,
+      "passes_cancellation_guardrail": false
     }
   ],
   "decision": {
@@ -198,7 +235,9 @@
     "rules": {
       "primary_ci_lower_above_zero": false,
       "cancellation_increase_ci_upper_below_0_5pp": true,
-      "city_fdr_threshold": 0.1
+      "city_fdr_threshold": 0.1,
+      "experiment_health_required": true,
+      "city_guardrail_required": true
     }
   }
 }

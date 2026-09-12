@@ -112,6 +112,50 @@ def standardized_mean_difference(
     return float((treated.mean() - control.mean()) / pooled_sd) if pooled_sd else 0.0
 
 
+def stratified_randomization_test(
+    frame: pd.DataFrame,
+    outcome: str,
+    strata: tuple[str, ...] = ("city_id", "experiment_date", "block_hour"),
+    treatment: str = "treatment_assignment",
+    repetitions: int = 1_000,
+    seed: int = 42,
+) -> dict[str, object]:
+    """Test a sharp null by reshuffling assignment within randomization strata."""
+    if repetitions < 1:
+        raise ValueError("repetitions must be positive")
+    required = {outcome, treatment, *strata}
+    missing = required - set(frame.columns)
+    if missing:
+        raise ValueError(f"Missing randomization-test columns: {sorted(missing)}")
+
+    clean = frame.dropna(subset=[outcome, treatment, *strata]).reset_index(drop=True)
+    values = clean[outcome].astype(float).to_numpy()
+    assignments = clean[treatment].astype(int).to_numpy()
+    if len(np.unique(assignments)) != 2:
+        raise ValueError("randomization test requires treatment and control observations")
+
+    observed = float(values[assignments == 1].mean() - values[assignments == 0].mean())
+    group_indices = [
+        np.asarray(indices, dtype=int)
+        for indices in clean.groupby(list(strata), sort=False, observed=True).indices.values()
+    ]
+    rng = np.random.default_rng(seed)
+    extreme = 0
+    permuted = assignments.copy()
+    for _ in range(repetitions):
+        for indices in group_indices:
+            permuted[indices] = rng.permutation(assignments[indices])
+        difference = float(values[permuted == 1].mean() - values[permuted == 0].mean())
+        extreme += int(abs(difference) >= abs(observed))
+
+    return {
+        "observed_difference": round(observed, 6),
+        "p_value": round((extreme + 1) / (repetitions + 1), 6),
+        "repetitions": repetitions,
+        "strata": list(strata),
+    }
+
+
 def city_heterogeneous_effects(frame: pd.DataFrame, outcome: str) -> list[dict[str, object]]:
     rows = []
     for (city_id, city_name, maturity), city_frame in frame.groupby(

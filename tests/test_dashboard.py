@@ -21,6 +21,7 @@ def test_dashboard_renders_completed_experiment(tmp_path, monkeypatch):
         "TARGETED_LAUNCH",
         "ITERATE",
         "STOP",
+        "INVALID_EXPERIMENT",
     }
     assert app.title[0].value.startswith("MarketLift")
     assert app.metric[0].label == "Recommendation"

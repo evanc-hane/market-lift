@@ -37,6 +37,45 @@ def build_warehouse(database: str | Path) -> dict[str, int]:
                 SELECT COUNT(*) FROM fct_experiment_assignments
                 WHERE treatment_assignment NOT IN (0, 1)
             """,
+            "duplicate_sessions": """
+                SELECT COUNT(*) FROM (
+                    SELECT session_id FROM fct_sessions
+                    GROUP BY session_id HAVING COUNT(*) > 1
+                )
+            """,
+            "duplicate_orders": """
+                SELECT COUNT(*) FROM (
+                    SELECT order_id FROM fct_orders
+                    GROUP BY order_id HAVING COUNT(*) > 1
+                )
+            """,
+            "orphan_orders": """
+                SELECT COUNT(*) FROM fct_orders o
+                LEFT JOIN fct_sessions s USING (session_id)
+                WHERE s.session_id IS NULL
+            """,
+            "invalid_order_status": """
+                SELECT COUNT(*) FROM fct_orders
+                WHERE order_status NOT IN ('completed', 'cancelled')
+            """,
+            "negative_financial_values": """
+                SELECT COUNT(*) FROM fct_orders
+                WHERE basket_value < 0 OR delivery_fee < 0 OR platform_commission < 0
+                    OR courier_base_pay < 0 OR courier_bonus < 0
+                    OR refund_amount < 0 OR estimated_support_cost < 0
+            """,
+            "invalid_assignment_window": """
+                SELECT COUNT(*) FROM fct_experiment_assignments
+                WHERE block_end <= block_start
+            """,
+            "overlapping_assignments": """
+                SELECT COUNT(*) FROM fct_experiment_assignments a
+                JOIN fct_experiment_assignments b
+                    ON a.zone_id = b.zone_id
+                    AND a.assignment_id < b.assignment_id
+                    AND a.block_start < b.block_end
+                    AND b.block_start < a.block_end
+            """,
         }
         failures = {
             name: int(connection.execute(query).fetchone()[0]) for name, query in checks.items()

@@ -6,6 +6,7 @@ from marketlift.experimentation import (
     difference_in_differences,
     naive_difference,
     sample_ratio_mismatch,
+    stratified_randomization_test,
 )
 
 
@@ -51,3 +52,22 @@ def test_difference_in_differences_recovers_injected_effect():
             )
     estimate = difference_in_differences(pd.DataFrame(rows), "outcome")
     assert abs(estimate.estimate - 2.5) < 0.05
+
+
+def test_randomization_inference_preserves_design_strata():
+    rows = []
+    for day in range(30):
+        for zone in range(4):
+            treatment = int(zone >= 2)
+            rows.append(
+                {
+                    "city_id": "city_01",
+                    "experiment_date": f"2026-01-{day + 1:02d}",
+                    "block_hour": 17,
+                    "treatment_assignment": treatment,
+                    "outcome": day + zone * 0.1 + treatment * 4,
+                }
+            )
+    result = stratified_randomization_test(pd.DataFrame(rows), "outcome", repetitions=499, seed=8)
+    assert result["p_value"] < 0.01
+    assert result["strata"] == ["city_id", "experiment_date", "block_hour"]

@@ -11,13 +11,17 @@
 ## Guardrails
 
 - Cancellation-rate effect: -0.017 [-0.038, 0.004]
-- P90 delivery-time effect: 2.275 [-0.213, 4.763]
+- P90 delivery-time effect: -2.173 [-3.909, -0.438]
 - Courier earnings/hour effect: 1.558 [1.180, 1.936]
 
 ## Decision rules
 
+- Experiment health valid: True
+- Stratified randomization-inference p-value: 0.0010
 - Primary CI lower bound above zero: False
 - Cancellation increase upper bound below 0.5pp:
+  True
+- Targeted launches must pass the city-level cancellation guardrail:
   True
 - City findings corrected at FDR q = 0.10
 

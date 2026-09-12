@@ -13,6 +13,7 @@ from marketlift.experimentation import (
     naive_difference,
     sample_ratio_mismatch,
     standardized_mean_difference,
+    stratified_randomization_test,
 )
 
 
@@ -48,8 +49,10 @@ def analyze_experiment(database: str | Path) -> dict[str, object]:
         frame, "contribution_margin", "pre_contribution_margin"
     )
     frame["cuped_contribution_margin"] = raw_adjusted
+    frame["experiment_date"] = frame["block_start"].dt.date
     cluster_raw = cluster_robust_estimate(frame, "contribution_margin")
     cluster_cuped = cluster_robust_estimate(frame, "cuped_contribution_margin")
+    randomization_inference = stratified_randomization_test(frame, "cuped_contribution_margin")
     overall_truth = float(truth["true_cm_lift_per_zone_hour"].mean() * 2)
 
     secondary_metrics = {
@@ -63,21 +66,44 @@ def analyze_experiment(database: str | Path) -> dict[str, object]:
         )
     }
     city_effects = city_heterogeneous_effects(frame, "contribution_margin")
+    city_cancellation = {
+        str(row["city_id"]): row for row in city_heterogeneous_effects(frame, "cancellation_rate")
+    }
     true_by_city = {
         row.city_id: float(row.true_cm_lift_per_zone_hour * 2)
         for row in truth.itertuples(index=False)
     }
     for city in city_effects:
         city["true_effect"] = round(true_by_city[str(city["city_id"])], 6)
-        city["absolute_error"] = round(float(city["estimate"]) - float(city["true_effect"]), 6)
+        city["estimation_bias"] = round(float(city["estimate"]) - float(city["true_effect"]), 6)
+        city["absolute_error"] = round(abs(float(city["estimation_bias"])), 6)
+        cancellation_ci_upper = float(city_cancellation[str(city["city_id"])]["ci_upper"])
+        city["cancellation_ci_upper"] = round(cancellation_ci_upper, 6)
+        city["passes_cancellation_guardrail"] = cancellation_ci_upper <= 0.005
+
+    srm = sample_ratio_mismatch(frame["treatment_assignment"])
+    pre_balance = standardized_mean_difference(frame, "pre_contribution_margin")
+    rain_balance = standardized_mean_difference(frame, "rain_intensity")
+    health_violations = []
+    if float(srm["p_value"]) < 0.01:
+        health_violations.append("sample_ratio_mismatch")
+    if abs(pre_balance) > 0.10:
+        health_violations.append("pre_period_imbalance")
+    if abs(rain_balance) > 0.10:
+        health_violations.append("rain_imbalance")
+    experiment_valid = not health_violations
 
     significant_positive = [
         city
         for city in city_effects
-        if float(city["estimate"]) > 0 and float(city["adjusted_p_value"]) < 0.10
+        if float(city["estimate"]) > 0
+        and float(city["adjusted_p_value"]) < 0.10
+        and bool(city["passes_cancellation_guardrail"])
     ]
     cancellation_guardrail = secondary_metrics["cancellation_rate"]["ci_upper"] <= 0.005
-    if cluster_cuped.ci_lower > 0 and cancellation_guardrail:
+    if not experiment_valid:
+        recommendation = "INVALID_EXPERIMENT"
+    elif cluster_cuped.ci_lower > 0 and cancellation_guardrail:
         recommendation = "LAUNCH"
     elif significant_positive:
         recommendation = "TARGETED_LAUNCH"
@@ -97,11 +123,11 @@ def analyze_experiment(database: str | Path) -> dict[str, object]:
             "analysis_units": len(frame),
         },
         "health": {
-            "sample_ratio_mismatch": sample_ratio_mismatch(frame["treatment_assignment"]),
-            "pre_period_balance_smd": round(
-                standardized_mean_difference(frame, "pre_contribution_margin"), 6
-            ),
-            "rain_balance_smd": round(standardized_mean_difference(frame, "rain_intensity"), 6),
+            "experiment_valid": experiment_valid,
+            "violations": health_violations,
+            "sample_ratio_mismatch": srm,
+            "pre_period_balance_smd": round(pre_balance, 6),
+            "rain_balance_smd": round(rain_balance, 6),
             "aa_false_positive_rate": round(
                 aa_false_positive_rate(frame["pre_contribution_margin"]), 4
             ),
@@ -118,10 +144,12 @@ def analyze_experiment(database: str | Path) -> dict[str, object]:
             "naive": raw_naive.to_dict(),
             "cluster_robust": cluster_raw.to_dict(),
             "cuped_cluster_robust": cluster_cuped.to_dict(),
+            "randomization_inference": randomization_inference,
             "cuped_theta": round(theta, 6),
             "cuped_variance_reduction": round(variance_reduction, 6),
             "known_ground_truth": round(overall_truth, 6),
-            "cuped_absolute_error": round(cluster_cuped.estimate - overall_truth, 6),
+            "cuped_estimation_bias": round(cluster_cuped.estimate - overall_truth, 6),
+            "cuped_absolute_error": round(abs(cluster_cuped.estimate - overall_truth), 6),
         },
         "secondary_metrics": secondary_metrics,
         "city_effects": city_effects,
@@ -132,6 +160,8 @@ def analyze_experiment(database: str | Path) -> dict[str, object]:
                 "primary_ci_lower_above_zero": cluster_cuped.ci_lower > 0,
                 "cancellation_increase_ci_upper_below_0_5pp": cancellation_guardrail,
                 "city_fdr_threshold": 0.10,
+                "experiment_health_required": True,
+                "city_guardrail_required": True,
             },
         },
     }

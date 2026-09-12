@@ -77,7 +77,7 @@ SELECT
         - COALESCE(om.courier_bonus, 0)
         - COALESCE(om.refunds, 0)
         - COALESCE(om.support_cost, 0) AS contribution_margin,
-    COALESCE(om.p90_delivery_minutes, 0) AS p90_delivery_minutes,
+    om.p90_delivery_minutes AS p90_delivery_minutes,
     COALESCE(om.late_deliveries, 0) AS late_deliveries,
     COALESCE(sp.avg_online_couriers, 0) AS avg_online_couriers,
     COALESCE(sp.active_courier_hours, 0) AS active_courier_hours,
@@ -96,4 +96,3 @@ JOIN dim_city c USING (city_id)
 JOIN session_metrics sm USING (assignment_id)
 LEFT JOIN order_metrics om USING (assignment_id)
 LEFT JOIN supply_metrics sp USING (assignment_id);
-

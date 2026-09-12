@@ -4,8 +4,8 @@
 [![Python](https://img.shields.io/badge/Python-3.11%20%7C%203.12-3776AB)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-MarketLift is an end-to-end product data science project that evaluates whether a
-marketplace should launch a **$2 peak-hour courier incentive**. It combines a reproducible
+MarketLift evaluates whether a marketplace should launch a **$2 peak-hour courier
+incentive**. It combines a reproducible
 two-sided marketplace simulator, DuckDB metric layer, geo-switchback experiment, CUPED,
 cluster-robust inference, heterogeneous treatment effects, and an executive decision memo.
 
@@ -31,16 +31,17 @@ The platform randomizes courier bonuses at the `zone cluster × 2-hour block` le
 3. Are cancellation, lateness, and courier earnings guardrails protected?
 4. Which cities should launch, iterate, or stop?
 
-The final output is `LAUNCH`, `TARGETED_LAUNCH`, `ITERATE`, or `STOP`—not merely a p-value.
+The final output is `LAUNCH`, `TARGETED_LAUNCH`, `ITERATE`, `STOP`, or
+`INVALID_EXPERIMENT` when health checks fail—not merely a p-value.
 
-## What the project demonstrates
+## System capabilities
 
 | Data science capability | Implementation |
 | --- | --- |
 | SQL analytics | Point-in-time exposure joins, funnels, unit economics, guardrail marts |
 | Experiment design | Balanced geo-switchback assignment and intent-to-treat analysis |
-| Experiment health | SRM, covariate balance, A/A calibration, MDE/power analysis |
-| Causal inference | Naive estimate, CUPED, clustered OLS, DiD utility |
+| Experiment health | SRM, covariate balance, A/A calibration, MDE/power analysis, validity gate |
+| Causal inference | Naive estimate, CUPED, clustered OLS, stratified randomization inference |
 | Heterogeneity | City/maturity effects with Benjamini-Hochberg correction |
 | Method validation | Estimator bias against hidden simulator ground truth |
 | Product judgment | Predeclared launch rules and executive decision memo |

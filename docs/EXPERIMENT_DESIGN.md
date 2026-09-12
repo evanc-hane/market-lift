@@ -21,14 +21,16 @@ the outcome process.
 2. Report an unadjusted difference for transparency.
 3. Estimate the primary effect with city/hour/day fixed effects and zone-cluster robust SE.
 4. Apply CUPED using pre-experiment contribution margin for the same cluster/block hour.
-5. Report cancellation, lateness, delivery-time, and courier-earnings guardrails.
-6. Correct city-level p-values with Benjamini-Hochberg FDR.
-7. Compare estimators with hidden simulator ground truth only after estimation.
+5. Confirm the primary conclusion with a permutation test that reshuffles treatment only
+   within the original city × date × block-hour randomization strata.
+6. Report cancellation, lateness, delivery-time, and courier-earnings guardrails.
+7. Require both experiment-health and relevant guardrail checks before any launch decision.
+8. Correct city-level p-values with Benjamini-Hochberg FDR.
+9. Compare estimators with hidden simulator ground truth only after estimation.
 
 ## Limitations
 
 The simulator simplifies courier movement, pricing, network interference, missing events,
 and delayed financial reconciliation. Thirty-two clusters are adequate for demonstration,
 not a universal experimental design. A real launch requires cluster-count sensitivity,
-randomization inference, pre-registration, and operational review.
-
+pre-registration, interference analysis, and operational review.

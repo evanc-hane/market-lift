@@ -26,6 +26,8 @@ def write_reports(results: dict[str, object], report_directory: str | Path) -> N
 - Pre-period balance SMD: {health["pre_period_balance_smd"]:.4f}
 - Rain balance SMD: {health["rain_balance_smd"]:.4f}
 - A/A false-positive rate: {health["aa_false_positive_rate"]:.2%}
+- Experiment valid: {health["experiment_valid"]}
+- Blocking violations: {", ".join(health["violations"]) or "None"}
 
 The analysis must be stopped if SRM p-value is below 0.01 or absolute balance SMD
 exceeds 0.10. The A/A calibration is diagnostic and should remain near the nominal 5%.
@@ -35,8 +37,15 @@ exceeds 0.10. The A/A calibration is diagnostic and should remain near the nomin
     city_rows = "\n".join(
         f"| {row['city_name']} | {row['market_maturity']} | {row['estimate']:.3f} | "
         f"{row['ci_lower']:.3f} | {row['ci_upper']:.3f} | "
-        f"{row['adjusted_p_value']:.4f} | {row['true_effect']:.3f} |"
+        f"{row['adjusted_p_value']:.4f} | {row['true_effect']:.3f} | "
+        f"{row['cancellation_ci_upper']:.3f} | "
+        f"{'Pass' if row['passes_cancellation_guardrail'] else 'Fail'} |"
         for row in cities
+    )
+    city_table_header = (
+        "| City | Maturity | Estimate | CI low | CI high | FDR p-value | Ground truth | "
+        "Cancellation CI upper | Guardrail |\n"
+        "| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |"
     )
     results_markdown = f"""# Primary Experiment Results
 
@@ -51,12 +60,13 @@ exceeds 0.10. The A/A calibration is diagnostic and should remain near the nomin
 
 - CUPED variance reduction: {primary["cuped_variance_reduction"]:.2%}
 - Minimum detectable effect: {results["power"]["minimum_detectable_effect"]:.3f}
+- Stratified randomization-inference p-value: {primary["randomization_inference"]["p_value"]:.4f}
+- CUPED estimation bias: {primary["cuped_estimation_bias"]:.3f}
 - CUPED absolute estimation error: {primary["cuped_absolute_error"]:.3f}
 
 ## City heterogeneity
 
-| City | Maturity | Estimate | CI low | CI high | FDR p-value | Ground truth |
-| --- | --- | ---: | ---: | ---: | ---: | ---: |
+{city_table_header}
 {city_rows}
 
 Segment results use Benjamini-Hochberg correction. City-level findings are exploratory
@@ -83,9 +93,13 @@ unless the segment and decision rule were declared before analysis.
 
 ## Decision rules
 
+- Experiment health valid: {health["experiment_valid"]}
+- Stratified randomization-inference p-value: {primary["randomization_inference"]["p_value"]:.4f}
 - Primary CI lower bound above zero: {decision["rules"]["primary_ci_lower_above_zero"]}
 - Cancellation increase upper bound below 0.5pp:
   {decision["rules"]["cancellation_increase_ci_upper_below_0_5pp"]}
+- Targeted launches must pass the city-level cancellation guardrail:
+  {decision["rules"]["city_guardrail_required"]}
 - City findings corrected at FDR q = {decision["rules"]["city_fdr_threshold"]:.2f}
 
 ## Interpretation

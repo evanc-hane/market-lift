@@ -9,6 +9,8 @@
 - Pre-period balance SMD: 0.0601
 - Rain balance SMD: -0.0548
 - A/A false-positive rate: 6.00%
+- Experiment valid: True
+- Blocking violations: None
 
 The analysis must be stopped if SRM p-value is below 0.01 or absolute balance SMD
 exceeds 0.10. The A/A calibration is diagnostic and should remain near the nominal 5%.

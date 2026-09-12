@@ -54,10 +54,13 @@ with executive:
 
 with health:
     srm = results["health"]["sample_ratio_mismatch"]
-    col1, col2, col3 = st.columns(3)
+    col1, col2, col3, col4 = st.columns(4)
     col1.metric("SRM p-value", f"{srm['p_value']:.4f}")
     col2.metric("Pre-period SMD", f"{results['health']['pre_period_balance_smd']:.3f}")
     col3.metric("A/A false-positive rate", f"{results['health']['aa_false_positive_rate']:.1%}")
+    col4.metric("Experiment valid", "Yes" if results["health"]["experiment_valid"] else "No")
+    if results["health"]["violations"]:
+        st.error("Blocking health violations: " + ", ".join(results["health"]["violations"]))
     assignment_counts = (
         experiment_units.groupby("treatment_assignment", as_index=False)
         .size()
@@ -108,4 +111,9 @@ with methods:
     )
     st.dataframe(method_frame, width="stretch")
     st.metric("Known ground truth", f"${results['primary_metric']['known_ground_truth']:.3f}")
+    st.metric(
+        "Randomization p-value",
+        f"{results['primary_metric']['randomization_inference']['p_value']:.4f}",
+    )
+    st.metric("CUPED bias", f"${results['primary_metric']['cuped_estimation_bias']:.3f}")
     st.metric("CUPED absolute error", f"${results['primary_metric']['cuped_absolute_error']:.3f}")

@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "marketlift"
-version = "0.1.0"
+version = "0.2.0"
 description = "Marketplace experimentation and causal inference decision platform."
 readme = "README.md"
 requires-python = ">=3.11"
@@ -58,4 +58,3 @@ check_untyped_defs = true
 disallow_untyped_defs = true
 ignore_missing_imports = true
 no_implicit_optional = true
-

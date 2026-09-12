@@ -1,6 +1,7 @@
 import json
 
 import duckdb
+import pytest
 
 from marketlift.analysis import analyze_experiment
 from marketlift.config import SimulationConfig
@@ -19,6 +20,14 @@ def test_end_to_end_pipeline_builds_decision_artifacts(tmp_path):
     marts = build_warehouse(database)
     assert marts["mart_experiment_cluster_hour"] > 0
     assert marts["mart_pre_experiment_covariates"] > 0
+    with duckdb.connect(str(database), read_only=True) as connection:
+        invalid_p90 = connection.execute(
+            """
+            SELECT COUNT(*) FROM mart_experiment_cluster_hour
+            WHERE completed_orders = 0 AND p90_delivery_minutes IS NOT NULL
+            """
+        ).fetchone()[0]
+    assert invalid_p90 == 0
 
     results = analyze_experiment(database)
     write_reports(results, reports)
@@ -27,8 +36,15 @@ def test_end_to_end_pipeline_builds_decision_artifacts(tmp_path):
         "TARGETED_LAUNCH",
         "ITERATE",
         "STOP",
+        "INVALID_EXPERIMENT",
     }
     assert results["health"]["sample_ratio_mismatch"]["p_value"] > 0.01
+    assert results["health"]["experiment_valid"] == (not results["health"]["violations"])
+    if not results["health"]["experiment_valid"]:
+        assert results["decision"]["recommendation"] == "INVALID_EXPERIMENT"
+    assert 0 < results["primary_metric"]["randomization_inference"]["p_value"] <= 1
+    assert results["primary_metric"]["cuped_absolute_error"] >= 0
+    assert all(city["absolute_error"] >= 0 for city in results["city_effects"])
     assert (reports / "decision_memo.md").exists()
     assert (
         json.loads((reports / "results.json").read_text())["experiment"]["experiment_id"]
@@ -52,3 +68,13 @@ def test_simulation_is_reproducible_at_table_level(tmp_path):
             "SELECT * FROM validation_ground_truth ORDER BY city_id"
         ).fetchall()
     assert left_truth == right_truth
+
+
+def test_warehouse_rejects_duplicate_session_ids(tmp_path):
+    database = tmp_path / "invalid.duckdb"
+    simulate_marketplace(database, SimulationConfig.for_scale("test", seed=31))
+    with duckdb.connect(str(database)) as connection:
+        connection.execute("INSERT INTO fct_sessions SELECT * FROM fct_sessions LIMIT 1")
+
+    with pytest.raises(ValueError, match="duplicate_sessions"):
+        build_warehouse(database)
